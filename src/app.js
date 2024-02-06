@@ -22,12 +22,12 @@ app.get("/get_users", async (_, res) => {
 });
 
 app.post("/add_user", async (req, res) => {
-  const insertQuery = `
+  try {
+    const insertQuery = `
     INSERT INTO users (name)
     VALUES ($1)
   `;
 
-  try {
     await db.query(insertQuery, [req.body.name]);
     res.status(200).send("User added");
   } catch (err) {
@@ -36,21 +36,21 @@ app.post("/add_user", async (req, res) => {
 });
 
 app.post("/update_user/:id", async (req, res) => {
-  const user = await getUserById(req.params.id);
-
-  if (!user) {
-    res.status(404).send("User not found");
-
-    return;
-  }
-
-  const updateQuery = `
-    UPDATE users
-    SET name = $1
-    WHERE id = $2
-  `;
-
   try {
+    const user = await getUserById(req.params.id);
+
+    if (!user) {
+      res.status(404).send("User not found");
+
+      return;
+    }
+
+    const updateQuery = `
+      UPDATE users
+      SET name = $1
+      WHERE id = $2
+    `;
+
     await db.query(updateQuery, [req.body.name, user.id]);
     res.status(200).send("User updated");
   } catch (err) {
